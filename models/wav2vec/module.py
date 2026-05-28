@@ -106,4 +106,26 @@ class Wave2Vec(pl.LightningModule):
         self.log(f'Val_metrics/Mean_acc', np.array(mean_acc).mean())
 
 
-    
+    def configure_optimizers(self):
+        parameters = [
+            {'params': self.model.parameters(), 'lr': self.config.learning_rate}
+        ]
+
+        optimizer = torch.optim.Adam(parameters,
+                                     lr=self.config.learning_rate)
+
+        return optimizer
+
+    def train_dataloader(self):
+        return self.get_loader(self.train_ds, shuffle=True)
+
+    def val_dataloader(self):
+        return self.get_loader(self.val_ds, shuffle=False)
+
+    def get_loader(self, dataset, shuffle):
+        return DataLoader(
+            dataset=dataset,
+            batch_size=self.config.batch_size,
+            num_workers=self.config.num_workers,
+            shuffle=shuffle,
+        )
